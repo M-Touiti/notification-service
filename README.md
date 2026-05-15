@@ -78,7 +78,7 @@ Built as a project showcasing third-party API integrations, event-driven archite
 
 ## Tech Stack
 
-- **Java 17** — Records, switch expressions
+- **Java 21** — Records, switch expressions, virtual threads
 - **Spring Boot 3.3** — Web, Mail, Thymeleaf, Actuator
 - **Spring Kafka 3.2** — Consumer, `@RetryableTopic`, DLT
 - **Spring Data JPA** — PostgreSQL notification status tracking
@@ -95,38 +95,48 @@ Built as a project showcasing third-party API integrations, event-driven archite
 ## Getting Started
 
 ### Prerequisites
-- Java 17+
+- Java 21+
 - Docker & Docker Compose
 
-### Run locally
+### Run locally (full stack via Docker Compose)
 
 ```bash
 # 1. Clone the repo
 git clone https://github.com/M-Touiti/notification-service.git
 cd notification-service
 
-# 2. Start infrastructure (PostgreSQL + Kafka + MailHog)
-docker-compose up -d postgres zookeeper kafka mailhog kafka-ui
+# 2. Start everything (builds the app image + PostgreSQL + Kafka + MailHog)
+docker-compose up -d
 
-# 3. Build and run (SMS and Push in test mode — no real credentials needed)
-./mvnw clean install -DskipTests
-./mvnw spring-boot:run -pl exposition
-
-# 4. Open Swagger UI
+# 3. Open Swagger UI
 open http://localhost:8080/swagger-ui.html
 
-# 5. Open MailHog to see sent emails
+# 4. Open MailHog to see sent emails
 open http://localhost:8025
+
+# 5. Open Kafka UI
+open http://localhost:8081
+```
+
+### Run locally (app on host, infrastructure in Docker)
+
+```bash
+# 1. Start only infrastructure
+docker-compose up -d postgres zookeeper kafka mailhog kafka-ui
+
+# 2. Build and run (SMS and Push in test mode — no real credentials needed)
+mvn clean install -DskipTests
+mvn spring-boot:run -pl exposition
 ```
 
 ### Run tests
 
 ```bash
-# Unit tests (Mockito — no infrastructure)
-./mvnw test -pl domain,application
+# Unit tests (Mockito — no infrastructure required)
+mvn test -pl domain,application
 
-# Integration tests (GreenMail + Testcontainers)
-./mvnw verify -pl exposition
+# Integration tests (GreenMail + Testcontainers — requires Docker)
+mvn verify -pl exposition
 ```
 
 ---
