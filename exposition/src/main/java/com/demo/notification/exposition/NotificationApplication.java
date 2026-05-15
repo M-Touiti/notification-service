@@ -2,6 +2,8 @@ package com.demo.notification.exposition;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
  * Multi-channel notification microservice entry point.
@@ -16,6 +18,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Status tracking: PENDING → SENT / FAILED stored in PostgreSQL.
  */
 @SpringBootApplication(scanBasePackages = "com.demo.notification")
+@EnableJpaRepositories(basePackages = "com.demo.notification")
+@EntityScan(basePackages = "com.demo.notification")
 public class NotificationApplication {
 
     public static void main(String[] args) {

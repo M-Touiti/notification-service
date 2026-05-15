@@ -29,7 +29,7 @@
     </modules>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <spring-kafka.version>3.2.0</spring-kafka.version>
         <testcontainers.version>1.19.8</testcontainers.version>
         <twilio.version>9.14.0</twilio.version>

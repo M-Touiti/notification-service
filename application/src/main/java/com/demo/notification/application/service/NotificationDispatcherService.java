@@ -71,7 +71,12 @@ public class NotificationDispatcherService {
                     command.recipientId(), channel, command.template(), params, recipient);
             repository.save(notification);
 
-            sendOnChannel(notification);
+            try {
+                sendOnChannel(notification);
+            } catch (ChannelUnavailableException e) {
+                repository.save(notification);
+                throw e;
+            }
             results.add(NotificationResponse.from(repository.save(notification)));
         }
 

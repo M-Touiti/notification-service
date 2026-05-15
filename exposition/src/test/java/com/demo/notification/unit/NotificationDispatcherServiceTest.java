@@ -13,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ class NotificationDispatcherServiceTest {
     @BeforeEach
     void setUp() {
         service = new NotificationDispatcherService(emailChannel, smsChannel, pushChannel, repository);
-        when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
     }
 
     @Test
@@ -121,6 +122,12 @@ class NotificationDispatcherServiceTest {
 
     @Test
     void shouldSaveNotificationAsPendingBeforeDispatch() {
+        List<NotificationStatus> savedStatuses = new ArrayList<>();
+        doAnswer(inv -> {
+            savedStatuses.add(((Notification) inv.getArgument(0)).getStatus());
+            return inv.getArgument(0);
+        }).when(repository).save(any());
+
         SendNotificationCommand command = new SendNotificationCommand(
                 "user-123", List.of(NotificationChannel.PUSH),
                 NotificationTemplate.GENERIC,
@@ -130,10 +137,8 @@ class NotificationDispatcherServiceTest {
 
         service.dispatch(command);
 
-        // First save = PENDING, second save = SENT
-        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
-        verify(repository, times(2)).save(captor.capture());
-        assertThat(captor.getAllValues().get(0).getStatus()).isEqualTo(NotificationStatus.PENDING);
-        assertThat(captor.getAllValues().get(1).getStatus()).isEqualTo(NotificationStatus.SENT);
+        assertThat(savedStatuses).hasSize(2);
+        assertThat(savedStatuses.get(0)).isEqualTo(NotificationStatus.PENDING);
+        assertThat(savedStatuses.get(1)).isEqualTo(NotificationStatus.SENT);
     }
 }

@@ -32,8 +32,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * Verifies: email is actually sent with correct subject, recipient, and HTML content.
  */
-@SpringBootTest
-@Testcontainers
+@SpringBootTest(classes = com.demo.notification.exposition.NotificationApplication.class)
+@Testcontainers(disabledWithoutDocker = true)
 class EmailChannelIntegrationTest {
 
     @Container
@@ -44,8 +44,6 @@ class EmailChannelIntegrationTest {
 
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
-            .withConfiguration(com.icegreen.greenmail.util.GreenMailUtil
-                    .buildSimpleReceivedMessage("noreply@demo.com"))
             .withPerMethodLifecycle(false);
 
     @DynamicPropertySource
