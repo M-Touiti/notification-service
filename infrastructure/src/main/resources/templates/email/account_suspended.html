@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>Account Suspended</title>
+<style>body{font-family:-apple-system,sans-serif;background:#f4f6f8;margin:0}.container{max-width:560px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden}.header{background:#e02424;color:#fff;padding:32px 40px}.body{padding:40px;color:#374151}.footer{background:#f9fafb;padding:24px 40px;text-align:center;color:#9ca3af;font-size:12px}</style>
+</head>
+<body>
+<div class="container">
+  <div class="header"><h1 style="margin:0">⚠️ Account Suspended</h1></div>
+  <div class="body">
+    <p>Hi <strong th:text="${name ?: 'there'}">there</strong>,</p>
+    <p>Your account has been temporarily suspended due to: <strong th:text="${reason ?: 'policy violation'}">policy violation</strong>.</p>
+    <p>To resolve this, contact our support team at <a th:href="'mailto:' + (${supportEmail} ?: 'support@demo.com')" th:text="${supportEmail ?: 'support@demo.com'}">support@demo.com</a>.</p>
+  </div>
+  <div class="footer"><p>&copy; 2025 Demo Platform.</p></div>
+</div>
+</body></html>

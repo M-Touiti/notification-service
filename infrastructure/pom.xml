@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent><groupId>com.demo</groupId><artifactId>notification-service</artifactId><version>1.0.0</version></parent>
+    <artifactId>infrastructure</artifactId>
+    <description>Channel adapters (Email/SMS/Push), Kafka consumer, JPA, Thymeleaf templates</description>
+    <dependencies>
+        <dependency><groupId>com.demo</groupId><artifactId>application</artifactId></dependency>
+
+        <!-- Kafka -->
+        <dependency><groupId>org.springframework.kafka</groupId><artifactId>spring-kafka</artifactId></dependency>
+
+        <!-- Email -->
+        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-mail</artifactId></dependency>
+        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-thymeleaf</artifactId></dependency>
+
+        <!-- SMS — Twilio -->
+        <dependency><groupId>com.twilio.sdk</groupId><artifactId>twilio</artifactId></dependency>
+
+        <!-- Push — Firebase Admin SDK -->
+        <dependency><groupId>com.google.firebase</groupId><artifactId>firebase-admin</artifactId></dependency>
+
+        <!-- JPA + PostgreSQL -->
+        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-data-jpa</artifactId></dependency>
+        <dependency><groupId>org.postgresql</groupId><artifactId>postgresql</artifactId></dependency>
+
+        <!-- JSON (params serialization) -->
+        <dependency><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-databind</artifactId></dependency>
+
+        <!-- Test -->
+        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
+        <dependency><groupId>org.springframework.kafka</groupId><artifactId>spring-kafka-test</artifactId><scope>test</scope></dependency>
+        <dependency><groupId>org.testcontainers</groupId><artifactId>junit-jupiter</artifactId><scope>test</scope></dependency>
+        <dependency><groupId>org.testcontainers</groupId><artifactId>kafka</artifactId><scope>test</scope></dependency>
+        <dependency><groupId>org.testcontainers</groupId><artifactId>postgresql</artifactId><scope>test</scope></dependency>
+        <dependency><groupId>com.icegreen</groupId><artifactId>greenmail-junit5</artifactId><scope>test</scope></dependency>
+    </dependencies>
+</project>

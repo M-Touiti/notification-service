@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Welcome</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f6f8; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+        .header { background: linear-gradient(135deg, #1a56db, #7c3aed); color: #fff; padding: 40px; text-align: center; }
+        .header h1 { margin: 0 0 8px; font-size: 28px; }
+        .header p { margin: 0; opacity: .85; font-size: 15px; }
+        .body { padding: 40px; color: #374151; line-height: 1.6; }
+        .btn { display: inline-block; background: #1a56db; color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 16px; margin-top: 24px; }
+        .footer { background: #f9fafb; padding: 24px 40px; text-align: center; color: #9ca3af; font-size: 12px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Welcome aboard! 🎉</h1>
+        <p>We're thrilled to have you with us</p>
+    </div>
+    <div class="body">
+        <p>Hi <strong th:text="${name ?: 'there'}">there</strong>,</p>
+        <p>Your account has been created successfully. You can now log in and start using the platform.</p>
+        <p>Here's what you can do next:</p>
+        <ul>
+            <li>Complete your profile</li>
+            <li>Explore the dashboard</li>
+            <li>Make your first transaction</li>
+        </ul>
+        <div style="text-align:center;">
+            <a class="btn" th:href="${loginUrl ?: '#'}" href="#">Get Started →</a>
+        </div>
+    </div>
+    <div class="footer">
+        <p>Questions? Contact us at <a th:href="'mailto:' + (${supportEmail} ?: 'support@demo.com')" style="color:#1a56db;" th:text="${supportEmail ?: 'support@demo.com'}">support@demo.com</a></p>
+        <p>&copy; 2025 Demo Platform. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>

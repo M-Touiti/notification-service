@@ -1,0 +1,88 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: notification-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/notification_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: notification-consumer-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+
+  # Email — JavaMailSender (configure for your SMTP provider)
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+
+# ── Application config ─────────────────────────────────────────────────
+app:
+  kafka:
+    topics:
+      notification-events: notification-events
+
+  email:
+    from-address: ${EMAIL_FROM_ADDRESS:noreply@demo.com}
+    from-name: ${EMAIL_FROM_NAME:Demo Platform}
+
+  sms:
+    twilio:
+      account-sid: ${TWILIO_ACCOUNT_SID:test_placeholder}
+      auth-token: ${TWILIO_AUTH_TOKEN:test_placeholder}
+      from-number: ${TWILIO_FROM_NUMBER:+15005550006}
+
+  push:
+    firebase:
+      credentials-path: ${FIREBASE_CREDENTIALS_PATH:test}
+
+# ── Actuator ───────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# ── OpenAPI ────────────────────────────────────────────────────────────
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.demo.notification: INFO
+    org.springframework.kafka: WARN
+    com.twilio: WARN

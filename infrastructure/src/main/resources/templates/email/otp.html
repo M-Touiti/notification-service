@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Your Verification Code</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f6f8; margin: 0; }
+        .container { max-width: 560px; margin: 40px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+        .header { background: #0e9f6e; color: #fff; padding: 32px 40px; }
+        .header h1 { margin: 0; font-size: 20px; }
+        .body { padding: 40px; color: #374151; text-align: center; }
+        .otp-box { background: #f0fdf4; border: 2px dashed #0e9f6e; border-radius: 8px; padding: 24px; margin: 28px 0; }
+        .otp-code { font-size: 42px; font-weight: 700; letter-spacing: 12px; color: #065f46; font-family: monospace; }
+        .expiry { color: #9ca3af; font-size: 14px; margin-top: 12px; }
+        .footer { background: #f9fafb; padding: 24px 40px; text-align: center; color: #9ca3af; font-size: 12px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header"><h1>🔐 Verification Code</h1></div>
+    <div class="body">
+        <p style="font-size:16px; color:#374151;">Use the code below to verify your identity.</p>
+        <div class="otp-box">
+            <div class="otp-code" th:text="${code ?: '000000'}">000000</div>
+            <div class="expiry">Expires in <strong th:text="${expiresIn ?: '5'}">5</strong> minutes</div>
+        </div>
+        <p style="color:#6b7280; font-size:14px;">⚠️ Never share this code with anyone. Our team will never ask for it.</p>
+    </div>
+    <div class="footer"><p>&copy; 2025 Demo Platform. All rights reserved.</p></div>
+</div>
+</body>
+</html>
