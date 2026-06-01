@@ -74,7 +74,7 @@ class EmailChannelIntegrationTest {
     private NotificationDispatcherService dispatcherService;
 
     @BeforeEach
-    void clearMailbox() {
+    void clearMailbox() throws Exception {
         greenMail.purgeEmailFromAllMailboxes();
     }
 
