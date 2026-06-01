@@ -55,7 +55,7 @@ flowchart TD
 | **SMS** | Twilio REST API, test mode (no real calls) for local dev |
 | **Push** | Firebase FCM v1, test mode for local dev |
 | **Kafka consumer** | `@RetryableTopic` — 3 retry attempts with exponential backoff |
-| **Dead Letter Topic** | Failed events go to `notification-events-dlt` for manual review |
+| **Dead Letter Topic** | Failed events persisted to `dead_letter_notifications` table with full payload for replay; queryable via REST |
 | **Status tracking** | PENDING → SENT / FAILED stored in PostgreSQL |
 | **Multi-channel** | One event can trigger EMAIL + SMS + PUSH simultaneously |
 | **Pagination** | All list endpoints paginated |
@@ -75,7 +75,7 @@ flowchart TD
 | `ACCOUNT_SUSPENDED` | Important: Your account has been suspended | Your account has been suspended. Contact support. |
 | `GENERIC` | {subject} | {message} |
 
-![Email preview in MailHog](screenshots/Received%20email.png)
+![Email preview in MailHog](images/Received%20email.png)
 
 ---
 
@@ -189,7 +189,7 @@ Response:
 ]
 ```
 
-![Swagger UI](screenshots/Swagger.png)
+![Swagger UI](images/Swagger.png)
 
 ### Query notifications
 
@@ -229,7 +229,16 @@ user-123:{"recipientId":"user-123","channels":["EMAIL"],"template":"WELCOME","pa
 | `notification-events` | Main input topic |
 | `notification-events-retry-0` | Retry attempt 1 (2s delay) |
 | `notification-events-retry-1` | Retry attempt 2 (4s delay) |
-| `notification-events-dlt` | Dead Letter Topic (permanent failures) |
+| `notification-events-dlt` | Dead Letter Topic → persisted to DB |
+
+Events that exhaust all retries land in `notification-events-dlt`. The `@DltHandler` saves each event to the `dead_letter_notifications` table, including the full JSON payload for manual replay.
+
+```bash
+# Query dead letter records (ops / monitoring)
+GET /api/v1/dead-letters
+GET /api/v1/dead-letters/{id}
+GET /api/v1/dead-letters/recipient/{recipientId}
+```
 
 ---
 

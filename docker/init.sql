@@ -16,3 +16,17 @@ CREATE INDEX IF NOT EXISTS idx_notifications_recipient_id ON notifications(recip
 CREATE INDEX IF NOT EXISTS idx_notifications_status       ON notifications(status);
 CREATE INDEX IF NOT EXISTS idx_notifications_channel      ON notifications(channel);
 CREATE INDEX IF NOT EXISTS idx_notifications_created_at   ON notifications(created_at DESC);
+
+CREATE TABLE IF NOT EXISTS dead_letter_notifications (
+    id              UUID            NOT NULL PRIMARY KEY,
+    topic           VARCHAR(255)    NOT NULL,
+    kafka_offset    BIGINT          NOT NULL,
+    recipient_id    VARCHAR(255),
+    channels        VARCHAR(100),
+    template        VARCHAR(50),
+    payload_json    TEXT,
+    failed_at       TIMESTAMP       NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_dlt_recipient_id ON dead_letter_notifications(recipient_id);
+CREATE INDEX IF NOT EXISTS idx_dlt_failed_at    ON dead_letter_notifications(failed_at DESC);

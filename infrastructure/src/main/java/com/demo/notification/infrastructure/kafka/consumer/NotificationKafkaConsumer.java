@@ -3,6 +3,10 @@ package com.demo.notification.infrastructure.kafka.consumer;
 import com.demo.notification.application.dto.request.SendNotificationCommand;
 import com.demo.notification.application.service.NotificationDispatcherService;
 import com.demo.notification.infrastructure.kafka.dto.NotificationEvent;
+import com.demo.notification.infrastructure.persistence.entity.DeadLetterNotificationEntity;
+import com.demo.notification.infrastructure.persistence.repository.DeadLetterJpaRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.DltHandler;
@@ -13,6 +17,10 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Kafka consumer for inbound notification events.
@@ -38,9 +46,15 @@ public class NotificationKafkaConsumer {
     private static final Logger log = LoggerFactory.getLogger(NotificationKafkaConsumer.class);
 
     private final NotificationDispatcherService dispatcherService;
+    private final DeadLetterJpaRepository deadLetterRepository;
+    private final ObjectMapper objectMapper;
 
-    public NotificationKafkaConsumer(NotificationDispatcherService dispatcherService) {
+    public NotificationKafkaConsumer(NotificationDispatcherService dispatcherService,
+                                     DeadLetterJpaRepository deadLetterRepository,
+                                     ObjectMapper objectMapper) {
         this.dispatcherService = dispatcherService;
+        this.deadLetterRepository = deadLetterRepository;
+        this.objectMapper = objectMapper;
     }
 
     @RetryableTopic(
@@ -88,9 +102,28 @@ public class NotificationKafkaConsumer {
                         "topic={} offset={} recipientId={} channels={} template={}",
                 topic, offset, event.recipientId(), event.channels(), event.template());
 
-        // In production:
-        // - Send an internal alert (Slack, PagerDuty, email to ops team)
-        // - Store in a dead_letter_notifications table for manual review
-        // - Trigger a fallback notification (e.g. if EMAIL failed → try SMS)
+        DeadLetterNotificationEntity record = new DeadLetterNotificationEntity();
+        record.setId(UUID.randomUUID());
+        record.setTopic(topic);
+        record.setKafkaOffset(offset);
+        record.setRecipientId(event.recipientId());
+        record.setChannels(event.channels().stream()
+                .map(Enum::name)
+                .collect(Collectors.joining(",")));
+        record.setTemplate(event.template() != null ? event.template().name() : null);
+        record.setPayloadJson(serializeEvent(event));
+        record.setFailedAt(LocalDateTime.now());
+
+        deadLetterRepository.save(record);
+
+        log.info("DLT record saved: id={} recipientId={}", record.getId(), event.recipientId());
+    }
+
+    private String serializeEvent(NotificationEvent event) {
+        try {
+            return objectMapper.writeValueAsString(event);
+        } catch (JsonProcessingException e) {
+            return "{}";
+        }
     }
 }
