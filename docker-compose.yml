@@ -78,6 +78,8 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SMTP_HOST: mailhog
       SMTP_PORT: 1025
+      SMTP_AUTH: "false"
+      SMTP_STARTTLS: "false"
       EMAIL_FROM_ADDRESS: noreply@demo.com
       EMAIL_FROM_NAME: Demo Platform
       # Twilio — set your credentials or leave as test_ for mock mode

@@ -75,6 +75,8 @@ flowchart TD
 | `ACCOUNT_SUSPENDED` | Important: Your account has been suspended | Your account has been suspended. Contact support. |
 | `GENERIC` | {subject} | {message} |
 
+![Email preview in MailHog](screenshots/Received%20email.png)
+
 ---
 
 ## Tech Stack
@@ -186,6 +188,8 @@ Response:
   }
 ]
 ```
+
+![Swagger UI](screenshots/Swagger.png)
 
 ### Query notifications
 
