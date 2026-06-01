@@ -1,5 +1,11 @@
 # notification-service
 
+[![CI](https://github.com/M-Touiti/notification-service/actions/workflows/ci.yml/badge.svg)](https://github.com/M-Touiti/notification-service/actions/workflows/ci.yml)
+![Java](https://img.shields.io/badge/Java-21-007396?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-6DB33F?logo=springboot)
+![Kafka](https://img.shields.io/badge/Apache%20Kafka-3.x-231F20?logo=apachekafka)
+![License](https://img.shields.io/badge/license-MIT-blue)
+
 A production-grade multi-channel notification microservice built with Spring Boot 3. Delivers notifications via Email (HTML templates), SMS (Twilio), and Push (Firebase FCM), driven by Kafka events with full retry strategy and status tracking.
 
 Built as a project showcasing third-party API integrations, event-driven architecture, and template-driven communication — skills directly applicable to SaaS, fintech, and e-commerce platforms.
@@ -8,40 +14,35 @@ Built as a project showcasing third-party API integrations, event-driven archite
 
 ## Architecture
 
-```
-                        ┌─────────────────────────────────────────────┐
- Kafka Producer         │         NOTIFICATION SERVICE                │
- (user-service,    ───► │                                             │
-  payment-service, etc) │  notification-events topic                  │
-                        │         │                                   │
-                        │  ┌──────▼─────────────────────────┐        │
-                        │  │  NotificationKafkaConsumer      │        │
-                        │  │  @RetryableTopic (3 attempts)   │        │
-                        │  │  → DLT on permanent failure     │        │
-                        │  └──────┬─────────────────────────┘        │
-                        │         │                                   │
-                        │  ┌──────▼─────────────────────────┐        │
-                        │  │  NotificationDispatcherService  │        │
-                        │  │  → creates Notification (PENDING│        │
-                        │  │  → routes to channel adapter    │        │
-                        │  │  → updates status (SENT/FAILED) │        │
-                        │  └──────┬─────────────────────────┘        │
-                        │         │                                   │
-                        │   ┌─────┼──────────┐                       │
-                        │   ▼     ▼          ▼                       │
-                        │  EMAIL  SMS       PUSH                      │
-                        │   │     │          │                        │
-                        └───┼─────┼──────────┼────────────────────────┘
-                            ▼     ▼          ▼
-                         SMTP  Twilio    Firebase
-                       +Thyme-  REST       FCM
-                        leaf    API       HTTP v1
+```mermaid
+flowchart TD
+    KP["Kafka Producers\n(user-service, payment-service…)"]
+    REST["REST API\nPOST /api/v1/notifications"]
 
-                        ┌──────────────────────────┐
-                        │  REST API (sync trigger)  │
-                        │  POST /api/v1/notifications│
-                        │  GET  /api/v1/notifications│
-                        └──────────────────────────┘
+    subgraph NS["NOTIFICATION SERVICE"]
+        KC["NotificationKafkaConsumer\n@RetryableTopic · 3 attempts\nexponential backoff 2s → 4s"]
+        DLT["Dead Letter Topic\nnotification-events-dlt"]
+        DS["NotificationDispatcherService\nPENDING → SENT / FAILED"]
+        DB[("PostgreSQL\nnotifications table")]
+
+        EA["EmailChannelAdapter\nJavaMailSender + Thymeleaf"]
+        SA["SmsChannelAdapter\nTwilio SDK"]
+        PA["PushChannelAdapter\nFirebase Admin SDK"]
+    end
+
+    SMTP["SMTP server\n(MailHog in dev)"]
+    TW["Twilio REST API"]
+    FB["Firebase FCM v1"]
+
+    KP -->|notification-events| KC
+    REST --> DS
+    KC -->|on success| DS
+    KC -->|after 3 failures| DLT
+    DS --> EA & SA & PA
+    DS <--> DB
+    EA --> SMTP
+    SA --> TW
+    PA --> FB
 ```
 
 ---
@@ -124,10 +125,14 @@ open http://localhost:8081
 # 1. Start only infrastructure
 docker-compose up -d postgres zookeeper kafka mailhog kafka-ui
 
-# 2. Build and run (SMS and Push in test mode — no real credentials needed)
+# 2. Build and run with the local profile
+#    - SMTP points to MailHog (localhost:1025) — no credentials needed
+#    - SMS and Push run in test/log mode — no real credentials needed
 mvn clean install -DskipTests
-mvn spring-boot:run -pl exposition
+mvn spring-boot:run -pl exposition -Dspring-boot.run.profiles=local
 ```
+
+Preview emails sent locally at **http://localhost:8025** (MailHog).
 
 ### Run tests
 
