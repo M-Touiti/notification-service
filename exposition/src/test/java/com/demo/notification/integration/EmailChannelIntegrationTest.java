@@ -56,8 +56,8 @@ class EmailChannelIntegrationTest {
         registry.add("spring.mail.port", () -> String.valueOf(ServerSetupTest.SMTP.getPort()));
         registry.add("spring.mail.username", () -> "test");
         registry.add("spring.mail.password", () -> "test");
-        registry.add("spring.mail.properties.mail.smtp.auth", () -> "false");
-        registry.add("spring.mail.properties.mail.smtp.starttls.enable", () -> "false");
+        registry.add("SMTP_AUTH", () -> "false");
+        registry.add("SMTP_STARTTLS", () -> "false");
         // Disable Kafka for this test
         registry.add("spring.kafka.bootstrap-servers", () -> "localhost:9999");
         registry.add("spring.autoconfigure.exclude",
