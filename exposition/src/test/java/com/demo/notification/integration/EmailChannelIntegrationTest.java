@@ -8,6 +8,7 @@ import com.demo.notification.domain.model.NotificationTemplate;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import jakarta.mail.internet.MimeMessage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,11 @@ class EmailChannelIntegrationTest {
 
     @Autowired
     private NotificationDispatcherService dispatcherService;
+
+    @BeforeEach
+    void clearMailbox() {
+        greenMail.purgeEmailFromAllMailboxes();
+    }
 
     @Test
     void shouldSendPaymentConfirmationEmail() throws Exception {
