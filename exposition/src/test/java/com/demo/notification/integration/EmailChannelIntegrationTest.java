@@ -32,7 +32,22 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * Verifies: email is actually sent with correct subject, recipient, and HTML content.
  */
-@SpringBootTest(classes = com.demo.notification.exposition.NotificationApplication.class)
+@SpringBootTest(
+        classes = com.demo.notification.exposition.NotificationApplication.class,
+        properties = {
+                "spring.mail.host=localhost",
+                "spring.mail.port=3025",
+                "spring.mail.username=",
+                "spring.mail.password=",
+                "spring.mail.properties[mail.smtp.auth]=false",
+                "spring.mail.properties[mail.smtp.starttls.enable]=false",
+                "SMTP_AUTH=false",
+                "SMTP_STARTTLS=false",
+                "spring.jpa.hibernate.ddl-auto=create-drop",
+                "spring.kafka.bootstrap-servers=localhost:9999",
+                "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
+        }
+)
 @Testcontainers(disabledWithoutDocker = true)
 class EmailChannelIntegrationTest {
 
@@ -48,20 +63,10 @@ class EmailChannelIntegrationTest {
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
+        // Testcontainers assigns a random port at runtime — must stay dynamic
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
-        registry.add("spring.mail.host", () -> "localhost");
-        registry.add("spring.mail.port", () -> String.valueOf(ServerSetupTest.SMTP.getPort()));
-        registry.add("spring.mail.username", () -> "test");
-        registry.add("spring.mail.password", () -> "test");
-        registry.add("SMTP_AUTH", () -> "false");
-        registry.add("SMTP_STARTTLS", () -> "false");
-        // Disable Kafka for this test
-        registry.add("spring.kafka.bootstrap-servers", () -> "localhost:9999");
-        registry.add("spring.autoconfigure.exclude",
-                () -> "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration");
     }
 
     @Autowired
